@@ -35,7 +35,7 @@ createPlaylist = (req, res) => {
 
         //Otherwise, create playlist
         console.log("user found: " + JSON.stringify(user));
-        playlist.ownerName = user.firstName + " " + user.lastName //Set owner name appropriately
+        playlist.ownerUsername = user.username //Set owner username appropriately
         user.playlists.push(playlist._id);
         user
             .save()
@@ -130,7 +130,7 @@ getPlaylistPairs = async (req, res) => {
 
     //Perform search
     await Playlist.find(
-                        { publishDate: { $gt: new Date(0)}, name: searchPlaylistNameRegex, ownerName: searchUsernameRegex}, 
+                        { publishDate: { $gt: new Date(0)}, name: searchPlaylistNameRegex, ownerUsername: searchUsernameRegex}, 
                         (err, playlists) => {
         console.log("found Playlists: " + JSON.stringify(playlists));
         if (err) {
