@@ -35,6 +35,7 @@ createPlaylist = (req, res) => {
 
         //Otherwise, create playlist
         console.log("user found: " + JSON.stringify(user));
+        playlist.ownerName = user.firstName + " " + user.lastName //Set owner name appropriately
         user.playlists.push(playlist._id);
         user
             .save()
@@ -118,7 +119,47 @@ getPlaylistById = async (req, res) => {
     }).catch(err => console.log(err))
 }
 getPlaylistPairs = async (req, res) => {
+    //Gets public playlists, can search by username or playlist name
     console.log("getPlaylistPairs");
+
+    //Construct regex for search criteria
+    searchPlaylistName = req.body.searchPlaylistName ? req.body.searchPlaylistName : ""
+    searchUsername = req.body.searchUsername ? req.body.searchUsername : ""
+    searchPlaylistNameRegex = new RegExp(searchPlaylistName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    searchUsernameRegex = new RegExp(searchUsername.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+
+    //Perform search
+    await Playlist.find(
+                        { publishDate: { $gt: new Date(0)}, name: searchPlaylistNameRegex, ownerName: searchUsernameRegex}, 
+                        (err, playlists) => {
+        console.log("found Playlists: " + JSON.stringify(playlists));
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        if (!playlists) {
+            console.log("!playlists.length");
+            return res
+                .status(404)
+                .json({ success: false, error: 'Playlists not found' })
+        }
+        else {
+            console.log("Send the Playlist pairs");
+            // PUT ALL THE LISTS INTO ID, NAME PAIRS
+            let pairs = [];
+            for (let key in playlists) {
+                let list = playlists[key];
+                let pair = {
+                    _id: list._id,
+                    name: list.name
+                };
+                pairs.push(pair);
+            }
+            return res.status(200).json({ success: true, idNamePairs: pairs })
+        }
+    }).catch(err => console.log(err))
+}
+getUserPlaylistPairs = async (req, res) => {
+    console.log("getUserPlaylistPairs");
     await User.findOne({ _id: req.userId }, (err, user) => {
         console.log("find user with id " + req.userId);
         async function asyncFindList(email) {
@@ -198,7 +239,6 @@ updatePlaylist = async (req, res) => {
 
                     list.name = body.playlist.name;
                     list.songs = body.playlist.songs;
-                    list.likes = body.playlist.likes;
                     list
                         .save()
                         .then(() => {
