@@ -24,10 +24,10 @@ const HomeScreen = () => {
             <HomeToolbar />
             <Box sx={{width: '100%', height: '80%', position: 'absolute'}}>
                 <Grid container spacing={2} sx={{width: '100%', height: '100%'}}>
-                    <Grid item xs={6}>
+                    <Grid item xs={7}>
                         <PlaylistContainer />
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item xs={5}>
                         <Player />
                     </Grid>
                 </Grid>

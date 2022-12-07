@@ -9,14 +9,29 @@ import List from '@mui/material/List';
 
 function PlaylistContainer() {
     const { store } = useContext(GlobalStoreContext);
-    
-    return (
-        <Box sx={{display: 'flex', overflow: 'scroll', height: '100%'}}>
+
+    let listCard = "";
+    if (store) {
+        listCard = 
             <List sx={{ width: '90%', left: '5%', bgcolor: 'background.paper' }}>
             {
+                store.idNamePairs.map((pair) => (
+                    <ListCard
+                        key={pair._id}
+                        idNamePair={pair}
+                        selected={false}
+                    />
+                ))
             }
             </List>;
-        </Box>
+    }
+    
+    return (
+        <div id="list-selector-list">
+            {
+                listCard
+            }
+        </div>
     )
 }
 

@@ -2,7 +2,7 @@ import AppBanner from './AppBanner'
 //import EditToolbar from './EditToolbar'
 import HomeScreen from './HomeScreen'
 import HomeWrapper from './HomeWrapper'
-//import ListCard from './ListCard'
+import ListCard from './ListCard'
 import LoginScreen from './LoginScreen'
 //import MUIDeleteModal from './MUIDeleteModal'
 //import MUIEditSongModal from './MUIEditSongModal'
@@ -23,7 +23,7 @@ export {
     //EditToolbar, 
     HomeScreen,
     HomeWrapper,
-    //ListCard, 
+    ListCard, 
     LoginScreen,
     //MUIDeleteModal,
     //MUIEditSongModal,
