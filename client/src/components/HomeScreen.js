@@ -18,7 +18,7 @@ const HomeScreen = () => {
 
     useEffect(() => {
         store.loadIdNamePairs();
-    }, []);
+    }, [store.currentScreen]);
     return (
         <Box>
             <HomeToolbar />
