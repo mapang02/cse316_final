@@ -12,14 +12,16 @@ export const AuthActionType = {
     LOGOUT_USER: "LOGOUT_USER",
     REGISTER_USER: "REGISTER_USER",
     SET_ACCOUNT_ERROR: "SET_ACCOUNT_ERROR",
-    CLEAR_ACCOUNT_ERROR: "CLEAR_ACCOUNT_ERROR"
+    CLEAR_ACCOUNT_ERROR: "CLEAR_ACCOUNT_ERROR",
+    SET_IS_GUEST: "SET_IS_GUEST"
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
         loggedIn: false,
-        accountError: null
+        accountError: null,
+        isGuest: false
     });
     const history = useHistory();
 
@@ -34,42 +36,56 @@ function AuthContextProvider(props) {
                 return setAuth({
                     user: payload.user,
                     loggedIn: payload.loggedIn,
-                    accountError: null
+                    accountError: null,
+                    isGuest: auth.isGuest
                 });
             }
             case AuthActionType.LOGIN_USER: {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true,
-                    accountError: null
+                    accountError: null,
+                    isGuest: false
                 })
             }
             case AuthActionType.LOGOUT_USER: {
                 return setAuth({
                     user: null,
                     loggedIn: false,
-                    accountError: null
+                    accountError: null,
+                    isGuest: false
                 })
             }
             case AuthActionType.REGISTER_USER: {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true,
-                    accountError: null
+                    accountError: null,
+                    isGuest: false
                 })
             }
             case AuthActionType.SET_ACCOUNT_ERROR: {
                 return setAuth({
                     user: auth.user,
                     loggedIn: auth.loggedIn,
-                    accountError: payload.error
+                    accountError: payload.error,
+                    isGuest: auth.isGuest
                 })
             }
             case AuthActionType.CLEAR_ACCOUNT_ERROR: {
                 return setAuth({
                     user: auth.user,
                     loggedIn: auth.loggedIn,
-                    accountError: null
+                    accountError: null,
+                    isGuest: auth.isGuest
+                })
+            }
+            case AuthActionType.SET_IS_GUEST: {
+                return setAuth({
+                    user: null,
+                    loggedIn: false,
+                    accountError: null,
+                    isGuest: payload
                 })
             }
             default:
@@ -160,6 +176,13 @@ function AuthContextProvider(props) {
         authReducer( {
             type: AuthActionType.CLEAR_ACCOUNT_ERROR,
             payload: null
+        })
+    }
+
+    auth.setIsGuest = function(value) {
+        authReducer( {
+            type: AuthActionType.SET_IS_GUEST,
+            payload: value
         })
     }
 

@@ -1,7 +1,32 @@
+import { useContext } from 'react'
+import { GlobalStoreContext } from '../store'
+import AuthContext from '../auth'
+
 import Button from '@mui/material/Button';
 import logo from './playlister_logo.png'
 
 export default function SplashScreen() {
+    const { store } = useContext(GlobalStoreContext);
+    const { auth } = useContext(AuthContext);
+
+    function handleGuestLogin() {
+        console.log("Guest login");
+        auth.setIsGuest(true);
+        store.changeScreen("SEARCH_NAME");
+    }
+
+    function handleLogin() {
+        console.log("Regular login");
+        auth.setIsGuest(false);
+        store.changeScreen("HOME");
+    }
+
+    function handleRegister() {
+        console.log("Registration");
+        auth.setIsGuest(false);
+        store.changeScreen("HOME");
+    }
+
     return (
         <div id="splash-screen">
             <img src={logo} alt=""/>
@@ -12,6 +37,7 @@ export default function SplashScreen() {
             </div>
             <Button
                 href="/register"
+                onClick={handleRegister}
                 variant="contained"
                 sx={{ m: 1, width: 200 }}
             >
@@ -19,18 +45,22 @@ export default function SplashScreen() {
             </Button>
             <Button
                 href="/login"
+                onClick={handleLogin}
                 variant="contained"
                 sx={{ m: 1, width: 200 }}
             >
                 Login
             </Button>
             <Button
-                href="/home"
+                onClick={handleGuestLogin}
                 variant="contained"
                 sx={{ m: 1, width: 200 }}
             >
                 Continue As Guest
             </Button>
+            <div id="splash-credits">
+                By Marcus Pang
+            </div>
         </div>
     )
 }

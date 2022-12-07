@@ -27,11 +27,11 @@ function PlaylistContainer() {
     }
     
     return (
-        <div id="list-selector-list">
+        <Box id="list-selector-list">
             {
                 listCard
             }
-        </div>
+        </Box>
     )
 }
 

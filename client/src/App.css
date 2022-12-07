@@ -77,6 +77,11 @@ body {
   width: 60%;
   margin: auto;
 }
+#splash-credits {
+  color: navy;
+  font-size: 16pt;
+  margin: auto;
+}
 
 .app-logo {
   height: 48px
