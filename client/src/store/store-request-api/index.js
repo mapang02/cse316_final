@@ -34,12 +34,7 @@ export const deletePlaylistById = (id) => api.delete(`/playlist/${id}`)
 export const getPlaylistById = (id) => api.get(`/playlist/${id}`)
 export const getPublicPlaylistById = (id) => api.get(`/publicplaylist/${id}`)
 export const getPlaylistPairs = () => api.get(`/playlistpairs/`)
-export const getPublicPlaylistPairs = (searchPlaylistName, searchUsername) => {
-    return api.get(`/publicplaylistpairs/`, {
-        searchPlaylistName: searchPlaylistName,
-        searchUsername: searchUsername
-    });
-}
+export const getPublicPlaylistPairs = (searchName, searchUser) => api.get(`/publicplaylistpairs/name=${searchName}/user=${searchUser}`);
 export const updatePlaylistById = (id, playlist) => {
     return api.put(`/playlist/${id}`, {
         // SPECIFY THE PAYLOAD

@@ -60,8 +60,8 @@ createPlaylist = (req, res) => {
                     console.log("Playlist with name " + newName + " already exists");
                     console.log(foundList);
                 }
-                appendedNum += 1;
                 newName = playlist.name + " " + appendedNum;
+                appendedNum += 1;
             }
     
             //Create playlist
@@ -216,13 +216,15 @@ getPlaylistPairs = async (req, res) => {
 }
 getPublicPlaylistPairs = async (req, res) => {
     //Gets public playlists, can search by username or playlist name
-    console.log("getPlaylistPairs");
+    console.log("getPublicPlaylistPairs");
 
     //Construct regex for search criteria
-    searchPlaylistName = req.body.searchPlaylistName ? req.body.searchPlaylistName : ""
-    searchUsername = req.body.searchUsername ? req.body.searchUsername : ""
+    searchPlaylistName = req.params.searchName.substring(5) ? req.params.searchName.substring(5) : ""
+    searchUsername = req.params.searchUser.substring(5) ? req.params.searchUser.substring(5) : ""
     searchPlaylistNameRegex = new RegExp(searchPlaylistName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     searchUsernameRegex = new RegExp(searchUsername.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    console.log("Name search criterion: " + searchPlaylistName);
+    console.log("User search criterion: " + searchUsername);
 
     //Perform search
     await Playlist.find(
