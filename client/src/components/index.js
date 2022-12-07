@@ -1,7 +1,7 @@
 import AppBanner from './AppBanner'
 //import EditToolbar from './EditToolbar'
-//import HomeScreen from './HomeScreen'
-//import HomeWrapper from './HomeWrapper'
+import HomeScreen from './HomeScreen'
+import HomeWrapper from './HomeWrapper'
 //import ListCard from './ListCard'
 import LoginScreen from './LoginScreen'
 //import MUIDeleteModal from './MUIDeleteModal'
@@ -10,7 +10,7 @@ import LoginScreen from './LoginScreen'
 import RegisterScreen from './RegisterScreen'
 //import SongCard from './SongCard'
 import SplashScreen from './SplashScreen'
-//import Statusbar from './Statusbar'
+import Statusbar from './Statusbar'
 //import WorkspaceScreen from './WorkspaceScreen'
 /*
     This serves as a module so that we can import
@@ -21,8 +21,8 @@ import SplashScreen from './SplashScreen'
 export { 
     AppBanner,  
     //EditToolbar, 
-    //HomeScreen,
-    //HomeWrapper,
+    HomeScreen,
+    HomeWrapper,
     //ListCard, 
     LoginScreen,
     //MUIDeleteModal,
@@ -31,6 +31,6 @@ export {
     //SongCard,
     RegisterScreen,
     SplashScreen,
-    //Statusbar, 
+    Statusbar, 
     //WorkspaceScreen 
 }

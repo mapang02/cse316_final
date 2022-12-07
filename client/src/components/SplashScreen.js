@@ -25,7 +25,7 @@ export default function SplashScreen() {
                 Login
             </Button>
             <Button
-                href="/main"
+                href="/home"
                 variant="contained"
                 sx={{ m: 1, width: 200 }}
             >
