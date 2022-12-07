@@ -27,10 +27,6 @@ function ListViewer(props) {
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const { idNamePair, selected } = props;
-    
-    useEffect(() => {
-        store.loadIdNamePairs();
-    }, [store.currentList]);
 
     function handleLoadList(event, id) {
         console.log("handleLoadList for " + id);
