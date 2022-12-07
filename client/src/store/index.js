@@ -293,7 +293,6 @@ function GlobalStoreContextProvider(props) {
             payload: {}
         });
         tps.clearAllTransactions();
-        history.push("/");
     }
 
     // THIS FUNCTION CREATES A NEW LIST
@@ -420,23 +419,12 @@ function GlobalStoreContextProvider(props) {
     // FUNCTIONS ARE setCurrentList, addMoveItemTransaction, addUpdateItemTransaction,
     // moveItem, updateItem, updateCurrentList, undo, and redo
     store.setCurrentList = function (id) {
-        async function asyncSetCurrentList(id) {
-            let response = await api.getPlaylistById(id);
-            if (response.data.success) {
-                let playlist = response.data.playlist;
-
-                response = await api.updatePlaylistById(playlist._id, playlist);
-                if (response.data.success) {
-                    tps.clearAllTransactions();
-                    storeReducer({
-                        type: GlobalStoreActionType.SET_CURRENT_LIST,
-                        payload: playlist
-                    });
-                    history.push("/playlist/" + playlist._id);
-                }
-            }
-        }
-        asyncSetCurrentList(id);
+        const playlist = store.idNamePairs.find(x => x._id === id);
+        storeReducer({
+            type: GlobalStoreActionType.SET_CURRENT_LIST,
+            payload: playlist
+        });
+        tps.clearAllTransactions();
     }
 
     store.getPlaylistSize = function() {

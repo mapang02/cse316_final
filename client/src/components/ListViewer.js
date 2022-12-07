@@ -1,10 +1,14 @@
-import { useContext, useState } from 'react'
+import { useEffect, useContext, useState } from 'react'
 import { GlobalStoreContext } from '../store'
+import SongCard from './SongCard.js'
+
 import Box from '@mui/material/Box';
+import List from '@mui/material/List';
 import Grid from '@mui/material/Grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import IconButton from '@mui/material/IconButton';
@@ -18,11 +22,15 @@ import TextField from '@mui/material/TextField';
     
     @author McKilla Gorilla
 */
-function ListCard(props) {
+function ListViewer(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const { idNamePair, selected } = props;
+    
+    useEffect(() => {
+        store.loadIdNamePairs();
+    }, [store.currentList]);
 
     function handleLoadList(event, id) {
         console.log("handleLoadList for " + id);
@@ -36,6 +44,11 @@ function ListCard(props) {
             // CHANGE THE CURRENT LIST
             store.setCurrentList(id);
         }
+    }
+
+    function handleClose() {
+        store.closeCurrentList();
+        store.loadIdNamePairs();
     }
 
     function handleToggleEdit(event) {
@@ -77,15 +90,33 @@ function ListCard(props) {
     if (store.isListNameEditActive) {
         cardStatus = true;
     }
+    // Songs list
+    let songsList = (
+        <Box sx={{ maxHeight: 0.85, overflow: 'scroll' }}>
+        <List 
+            id="playlist-cards" 
+            sx={{ width: '100%', bgcolor: 'background.paper' }}
+        >
+            {
+                store.currentList.songs.map((song, index) => (
+                    <SongCard
+                        id={'playlist-song-' + (index)}
+                        key={'playlist-song-' + (index)}
+                        index={index}
+                        song={song}
+                    />
+                ))  
+            }
+         </List>         
+         </Box>
+    )
+
     // If list is published
-    let cardColor = "lightgrey";
-    let owner = ""
+    let cardColor = "orange";
     let publishDate = "";
     let viewCount = "";
     let ratings = "";
     if (idNamePair.publishDate) {
-        cardColor = "cornflowerblue"
-        owner = "By: " + idNamePair.ownerUsername;
         publishDate = "Published:" + (new Date(idNamePair.publishDate).toLocaleDateString());
         viewCount = "Views: " + idNamePair.__v; //Fix this later
         ratings = (
@@ -124,10 +155,13 @@ function ListCard(props) {
                     </Box>
                 </Grid>
                 <Grid item xs={6}>
-                    <Box sx={{p: 1}}>{owner}</Box>
+                    <Box sx={{p: 1}}>By: {idNamePair.ownerUsername}</Box>
                 </Grid>
                 <Grid item xs={6}>
                     {ratings}
+                </Grid>
+                <Grid item xs={12}>
+                    {songsList}
                 </Grid>
                 <Grid item xs={4}>
                     <Box sx={{p: 1}}>{publishDate}</Box>
@@ -137,9 +171,9 @@ function ListCard(props) {
                 </Grid>
                 <Grid item xs={4}>
                     <IconButton onClick={(event) => {
-                            handleLoadList(event, idNamePair._id)
-                        }} aria-label='expand'>
-                        <ExpandMoreIcon style={{fontSize:'24pt'}} />
+                            handleClose()
+                        }} aria-label='close'>
+                        <ExpandLessIcon style={{fontSize:'24pt'}} />
                     </IconButton>
                 </Grid>
             </Grid>
@@ -171,4 +205,4 @@ function ListCard(props) {
     );
 }
 
-export default ListCard;
+export default ListViewer;
