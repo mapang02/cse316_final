@@ -5,9 +5,7 @@ import PlaylistContainer from './PlaylistContainer.js'
 import Player from './Player.js'
 import Statusbar from './Statusbar';
 
-import AddIcon from '@mui/icons-material/Add';
-import Fab from '@mui/material/Fab'
-import List from '@mui/material/List';
+import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
 /*
@@ -22,18 +20,20 @@ const HomeScreen = () => {
         store.loadIdNamePairs();
     }, []);
     return (
-        <div id="playlister-home">
+        <Box>
             <HomeToolbar />
-            <Grid container spacing={2}>
-                <Grid item xs={6}>
-                    <PlaylistContainer />
+            <Box sx={{width: '100%', height: '80%', position: 'absolute'}}>
+                <Grid container spacing={2} sx={{width: '100%', height: '100%'}}>
+                    <Grid item xs={6}>
+                        <PlaylistContainer />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <Player />
+                    </Grid>
                 </Grid>
-                <Grid item xs={6}>
-                    <Player />
-                </Grid>
-            </Grid>
+            </Box>
             <Statusbar />
-        </div>)
+        </Box>)
 }
 
 export default HomeScreen;
