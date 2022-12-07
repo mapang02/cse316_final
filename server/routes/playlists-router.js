@@ -17,7 +17,12 @@ router.get('/userplaylistpairs', auth.verify, PlaylistController.getUserPlaylist
 router.get('/playlists', auth.verify, PlaylistController.getPlaylists)
 router.put('/playlist/:id', auth.verify, PlaylistController.updatePlaylist)
 router.put('/publish/:id', auth.verify, PlaylistController.publishPlaylist)
+
 router.post('/comment/:id', auth.verify, PlaylistController.createComment)
 router.get('/comment/:id', PlaylistController.getComments)
+
+router.post('/rating/:id', auth.verify, PlaylistController.addRating)
+router.delete('/rating/:id', auth.verify, PlaylistController.removeRating)
+router.get('/rating/:id', auth.verify, PlaylistController.getRating)
 
 module.exports = router

@@ -1,6 +1,7 @@
 const Playlist = require('../models/playlist-model')
 const User = require('../models/user-model');
 const Comment = require('../models/comment-model');
+const Rating = require('../models/rating-model');
 /*
     This is our back-end API. It provides all the data services
     our database needs. Note that this file contains the controller
@@ -26,36 +27,60 @@ createPlaylist = (req, res) => {
     }
 
     User.findOne({ _id: req.userId }, (err, user) => {
-        //Return error if req.userId does not match body.ownerEmail
-        if (user.email != body.ownerEmail) {
-            console.log("incorrect user!");
-            return res.status(400).json({
-                errorMessage: "authentication error"
-            });
-        }
+        async function asyncCreatePlaylist(playlist) {
+            //Return error if req.userId does not match body.ownerEmail
+            if (user.email != body.ownerEmail) {
+                console.log("incorrect user!");
+                return res.status(400).json({
+                    errorMessage: "authentication error"
+                });
+            }
+            console.log("user found: " + JSON.stringify(user));
+    
+            //Set owner username appropriately
+            playlist.ownerUsername = user.username
 
-        //Otherwise, create playlist
-        console.log("user found: " + JSON.stringify(user));
-        playlist.ownerUsername = user.username //Set owner username appropriately
-        user.playlists.push(playlist._id);
-        user
-            .save()
-            .then(() => {
-                playlist
-                    .save()
-                    .then(() => {
-                        return res.status(201).json({
-                            playlist: playlist
+            //Find available name for playlist
+            let appendedNum = 0;
+            let newName = playlist.name;
+            let validNameFound = false;
+            while (!validNameFound) {
+                let foundList = await Playlist.findOne({ ownerEmail: user.email, name: newName });
+                if (!foundList) {
+                    console.log("New name: " + newName);
+                    playlist.name = newName;
+                    validNameFound = true;
+                }
+                else {
+                    console.log("Playlist with name " + newName + " already exists");
+                    console.log(foundList);
+                }
+                appendedNum += 1;
+                newName = playlist.name + " " + appendedNum;
+            }
+    
+            //Create playlist
+            user.playlists.push(playlist._id);
+            user
+                .save()
+                .then(() => {
+                    playlist
+                        .save()
+                        .then(() => {
+                            return res.status(201).json({
+                                playlist: playlist
+                            })
                         })
-                    })
-                    .catch(error => {
-                        return res.status(400).json({
-                            error,
-                            errorMessage: 'Playlist Not Created!'
+                        .catch(error => {
+                            return res.status(400).json({
+                                error,
+                                errorMessage: 'Playlist Not Created!'
+                            })
                         })
-                    })
-            });
-    })
+                });
+        }
+        asyncCreatePlaylist(playlist);
+    });
 }
 deletePlaylist = async (req, res) => {
     console.log("delete Playlist with id: " + JSON.stringify(req.params.id));
@@ -81,15 +106,13 @@ deletePlaylist = async (req, res) => {
                     user.save().catch(err => console.log(err));
 
                     //Delete comments
-                    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
-                        async function deleteComments(list) { 
-                            for (let key in list.comments) {
-                                console.log("Deleting comment " + list.comments[key])
-                                await Comment.findOneAndDelete({ _id: list.comments[key] }).catch(err => console.log(err))
-                            }
+                    async function asyncDeleteComments(list) { 
+                        for (let key in list.comments) {
+                            console.log("Deleting comment " + list.comments[key])
+                            await Comment.findOneAndDelete({ _id: list.comments[key] }).catch(err => console.log(err))
                         }
-                        deleteComments(playlist);
-                    });
+                    }
+                    asyncDeleteComments(playlist);
 
                     //Delete playlist
                     Playlist.findOneAndDelete({ _id: req.params.id }, () => {
@@ -409,7 +432,7 @@ getComments = async (req, res) => {
         // Check if playlist is published
         if (playlist.publishDate) {
             //Retrieve each comment and return in array
-            async function getCommentsFromId() {
+            async function asyncGetComments() {
                 let comments = []
                 for (let key in playlist.comments) {
                     await Comment.findById({ _id: playlist.comments[key] }, (error, comment) => {
@@ -420,12 +443,89 @@ getComments = async (req, res) => {
                 }
                 return res.status(200).json({ success: true, comments: comments});
             }
-            return getCommentsFromId();
+            return asyncGetComments();
         }
         else {
             return res.status(400).json({ success: false, description: "Playlist is not published" });
         }
     })
+}
+addRating = async (req, res) => {
+    const body = req.body
+    const Ratings = {
+        LIKE: "LIKE",
+        DISLIKE: "DISLIKE"
+    }
+    console.log("addRating: " + JSON.stringify(body));
+
+    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+        console.log("playlist found: " + JSON.stringify(playlist));
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'Playlist not found!',
+            })
+        }
+
+        // Check if playlist is published
+        if (playlist.publishDate) {
+            if (!body) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'You must provide a rating',
+                })
+            }
+
+            User.findOne({ _id: req.userId }, (err, user) => {
+                //Return error if rating is invalid
+                if (!Ratings[body.rating]) {
+                    return res.status(400).json({
+                        errorMessage: "invalid rating"
+                    });
+                }
+
+                //Creating Rating object to track rating
+                const rating = new Rating({ ownerEmail: user.email, playlist: playlist._id, rating: body.rating});
+
+                //Add to playlist like/dislike count
+                switch (body.rating) {
+                    case Ratings.LIKE:
+                        playlist.likes += 1;
+                        break;
+                    case Ratings.DISLIKE:
+                        playlist.dislikes += 1;
+                        break;
+                }
+
+                playlist
+                    .save()
+                    .then(() => {
+                        rating
+                            .save()
+                            .then(() => {
+                                return res.status(201).json({
+                                    rating: rating
+                                })
+                            })
+                            .catch(error => {
+                                return res.status(400).json({
+                                    errorMessage: 'Rating Not Created!'
+                                })
+                            })
+                    });
+            });
+
+        }
+        else {
+            return res.status(400).json({ success: false, description: "Playlist is not published" });
+        }
+    })
+}
+removeRating = async (req, res) => {
+
+}
+getRating = async (req, res) => {
+
 }
 
 module.exports = {
@@ -438,5 +538,8 @@ module.exports = {
     updatePlaylist,
     publishPlaylist,
     createComment,
-    getComments
+    getComments,
+    addRating,
+    removeRating,
+    getRating
 }
