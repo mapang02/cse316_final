@@ -1,25 +1,30 @@
-import logo from './logo.svg';
 import './App.css';
+import { React } from 'react';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { AuthContextProvider } from './auth';
+import { GlobalStoreContextProvider } from './store';
+import {
+    AppBanner,
+    SplashScreen,
+    LoginScreen,
+    RegisterScreen
+} from './components';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const App = () => {   
+    return (
+        <BrowserRouter>
+            <AuthContextProvider>
+                <GlobalStoreContextProvider>              
+                    <AppBanner />
+                    <Switch>
+                        <Route path="/" exact component={SplashScreen} />
+                        <Route path="/login/" exact component={LoginScreen} />
+                        <Route path="/register/" exact component={RegisterScreen} />
+                    </Switch>
+                </GlobalStoreContextProvider>
+            </AuthContextProvider>
+        </BrowserRouter>
+    )
 }
 
-export default App;
+export default App
