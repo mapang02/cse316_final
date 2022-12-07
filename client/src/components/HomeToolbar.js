@@ -35,12 +35,16 @@ function HomeToolbar() {
     function handleSearchUserButton() {
         store.changeScreen("SEARCH_USER");
     }
+    const homeButtonHighlighted = (store.currentScreen === "HOME") ? {background: "cornflowerblue"} : {};
+    const searchNameButtonHighlighted = (store.currentScreen === "SEARCH_NAME") ? {background: "cornflowerblue"} : {};
+    const searchUserButtonHighlighted = (store.currentScreen === "SEARCH_USER") ? {background: "cornflowerblue"} : {};
 
     let homeButton = ""
     if (!auth.isGuest) {
         homeButton = (
             <Button
                 size="large"
+                sx={homeButtonHighlighted}
                 onClick={handleHomeButton}
             >
                 <HomeIcon />
@@ -53,12 +57,14 @@ function HomeToolbar() {
                 {homeButton}
                 <Button
                     size="large"
+                    sx={searchNameButtonHighlighted}
                     onClick={handleSearchNameButton}
                 >
                     <PersonIcon />
                 </Button>
                 <Button
                     size="large"
+                    sx={searchUserButtonHighlighted}
                     onClick={handleSearchUserButton}
                 >
                     <GroupsIcon />
