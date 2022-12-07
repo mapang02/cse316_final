@@ -2,6 +2,11 @@ const Playlist = require('../models/playlist-model')
 const User = require('../models/user-model');
 const Comment = require('../models/comment-model');
 const Rating = require('../models/rating-model');
+
+const UserRatings = {
+    LIKE: "LIKE",
+    DISLIKE: "DISLIKE"
+}
 /*
     This is our back-end API. It provides all the data services
     our database needs. Note that this file contains the controller
@@ -158,7 +163,58 @@ getPlaylistById = async (req, res) => {
         asyncFindUser(list);
     }).catch(err => console.log(err))
 }
+getPublicPlaylistById = async (req, res) => {
+    console.log("Find Public Playlist with id: " + JSON.stringify(req.params.id));
+
+    await Playlist.findById({ _id: req.params.id }, (err, list) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err });
+        }
+        console.log("Found list: " + JSON.stringify(list));
+
+        if (!list.publishDate) {
+            return res.status(400).json({ success: false, description: "Playlist is not public" });
+        }
+        return res.status(200).json({ success: true, playlist: list })
+    }).catch(err => console.log(err))
+}
 getPlaylistPairs = async (req, res) => {
+    console.log("getUserPlaylistPairs");
+    await User.findOne({ _id: req.userId }, (err, user) => {
+        console.log("find user with id " + req.userId);
+        async function asyncFindList(email) {
+            console.log("find all Playlists owned by " + email);
+            await Playlist.find({ ownerEmail: email }, (err, playlists) => {
+                console.log("found Playlists: " + JSON.stringify(playlists));
+                if (err) {
+                    return res.status(400).json({ success: false, error: err })
+                }
+                if (!playlists) {
+                    console.log("!playlists.length");
+                    return res
+                        .status(404)
+                        .json({ success: false, error: 'Playlists not found' })
+                }
+                else {
+                    console.log("Send the Playlist pairs");
+                    // PUT ALL THE LISTS INTO ID, NAME PAIRS
+                    let pairs = [];
+                    for (let key in playlists) {
+                        let list = playlists[key];
+                        let pair = {
+                            _id: list._id,
+                            name: list.name
+                        };
+                        pairs.push(pair);
+                    }
+                    return res.status(200).json({ success: true, idNamePairs: pairs })
+                }
+            }).catch(err => console.log(err))
+        }
+        asyncFindList(user.email);
+    }).catch(err => console.log(err))
+}
+getPublicPlaylistPairs = async (req, res) => {
     //Gets public playlists, can search by username or playlist name
     console.log("getPlaylistPairs");
 
@@ -196,42 +252,6 @@ getPlaylistPairs = async (req, res) => {
             }
             return res.status(200).json({ success: true, idNamePairs: pairs })
         }
-    }).catch(err => console.log(err))
-}
-getUserPlaylistPairs = async (req, res) => {
-    console.log("getUserPlaylistPairs");
-    await User.findOne({ _id: req.userId }, (err, user) => {
-        console.log("find user with id " + req.userId);
-        async function asyncFindList(email) {
-            console.log("find all Playlists owned by " + email);
-            await Playlist.find({ ownerEmail: email }, (err, playlists) => {
-                console.log("found Playlists: " + JSON.stringify(playlists));
-                if (err) {
-                    return res.status(400).json({ success: false, error: err })
-                }
-                if (!playlists) {
-                    console.log("!playlists.length");
-                    return res
-                        .status(404)
-                        .json({ success: false, error: 'Playlists not found' })
-                }
-                else {
-                    console.log("Send the Playlist pairs");
-                    // PUT ALL THE LISTS INTO ID, NAME PAIRS
-                    let pairs = [];
-                    for (let key in playlists) {
-                        let list = playlists[key];
-                        let pair = {
-                            _id: list._id,
-                            name: list.name
-                        };
-                        pairs.push(pair);
-                    }
-                    return res.status(200).json({ success: true, idNamePairs: pairs })
-                }
-            }).catch(err => console.log(err))
-        }
-        asyncFindList(user.email);
     }).catch(err => console.log(err))
 }
 getPlaylists = async (req, res) => {
@@ -452,10 +472,6 @@ getComments = async (req, res) => {
 }
 addRating = async (req, res) => {
     const body = req.body
-    const Ratings = {
-        LIKE: "LIKE",
-        DISLIKE: "DISLIKE"
-    }
     console.log("addRating: " + JSON.stringify(body));
 
     Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
@@ -487,7 +503,7 @@ addRating = async (req, res) => {
                     }
     
                     //Return error if rating is invalid
-                    if (!Ratings[body.rating]) {
+                    if (!UserRatings[body.rating]) {
                         return res.status(400).json({
                             errorMessage: "invalid rating"
                         });
@@ -498,10 +514,10 @@ addRating = async (req, res) => {
     
                     //Add to playlist like/dislike count
                     switch (body.rating) {
-                        case Ratings.LIKE:
+                        case UserRatings.LIKE:
                             playlist.likes += 1;
                             break;
-                        case Ratings.DISLIKE:
+                        case UserRatings.DISLIKE:
                             playlist.dislikes += 1;
                             break;
                     }
@@ -533,18 +549,62 @@ addRating = async (req, res) => {
     })
 }
 removeRating = async (req, res) => {
+    console.log("removeRating: user - " + req.userId + " playlist - " + req.params.id);
 
+    User.findOne({ _id: req.userId }, (err, user) => {
+        async function asyncRemoveRating() {
+            //Find rating
+            const userRating = await Rating.findOne({ ownerEmail: user.email});
+            if (!userRating) {
+                return res.status(400).json({ success: false, description: "No rating to remove" });
+            }
+
+            //Subtract from playlist like/dislike count
+            const playlist = await Playlist.findById({ _id: userRating.playlist});
+            switch (userRating.rating) {
+                case UserRatings.LIKE:
+                    playlist.likes -= 1;
+                    break;
+                case UserRatings.DISLIKE:
+                    playlist.dislikes -= 1;
+                    break;
+            }
+            playlist.save().catch(err => console.log(err));
+
+            //Delete rating
+            userRating
+                .remove()
+                .then(() => {
+                    return res.status(200).json({})
+                })
+                .catch(err => console.log(err));
+        }
+        asyncRemoveRating();
+    });
 }
 getRating = async (req, res) => {
+    console.log("getRating: user - " + req.userId + " playlist - " + req.params.id);
 
+    User.findOne({ _id: req.userId }, (err, user) => {
+        async function asyncGetRating() {
+            const userRating = await Rating.findOne({ ownerEmail: user.email});
+            console.log(userRating);
+            if (!userRating) {
+                return res.status(200).json({ success: true, rating: "null" });
+            }
+            return res.status(200).json({ success: true, rating: userRating.rating });
+        }
+        asyncGetRating();
+    });
 }
 
 module.exports = {
     createPlaylist,
     deletePlaylist,
     getPlaylistById,
+    getPublicPlaylistById,
     getPlaylistPairs,
-    getUserPlaylistPairs,
+    getPublicPlaylistPairs,
     getPlaylists,
     updatePlaylist,
     publishPlaylist,
