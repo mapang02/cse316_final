@@ -1,5 +1,6 @@
 const Playlist = require('../models/playlist-model')
 const User = require('../models/user-model');
+const Comment = require('../models/comment-model');
 /*
     This is our back-end API. It provides all the data services
     our database needs. Note that this file contains the controller
@@ -266,11 +267,161 @@ updatePlaylist = async (req, res) => {
         asyncFindUser(playlist);
     })
 }
+publishPlaylist = async (req, res) => {
+    const body = req.body
+    console.log("publishPlaylist: " + JSON.stringify(req.params.id));
+
+    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+        console.log("playlist found: " + JSON.stringify(playlist));
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'Playlist not found!',
+            })
+        }
+        if (playlist.publishDate) {
+            return res.status(400).json({
+                success: false,
+                description: "Playlist is already published"
+            })
+        }
+
+        // DOES THIS LIST BELONG TO THIS USER?
+        async function asyncFindUser(list) {
+            await User.findOne({ email: list.ownerEmail }, (err, user) => {
+                console.log("user._id: " + user._id);
+                console.log("req.userId: " + req.userId);
+                if (user._id == req.userId) {
+                    console.log("correct user!");
+
+                    list.publishDate = Date();
+                    list.views = 0;
+                    list.likes = 0;
+                    list.dislikes = 0;
+                    list.comments = [];
+                    list
+                        .save()
+                        .then(() => {
+                            console.log("SUCCESS!!!");
+                            return res.status(200).json({
+                                success: true,
+                                id: list._id,
+                                message: 'Playlist published!',
+                            })
+                        })
+                        .catch(error => {
+                            console.log("FAILURE: " + JSON.stringify(error));
+                            return res.status(404).json({
+                                error,
+                                message: 'Playlist not published!',
+                            })
+                        })
+                }
+                else {
+                    console.log("incorrect user!");
+                    return res.status(400).json({ success: false, description: "authentication error" });
+                }
+            });
+        }
+        asyncFindUser(playlist);
+    })
+}
+createComment = async (req, res) => {
+    const body = req.body
+    console.log("createComment: " + JSON.stringify(body));
+
+    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+        console.log("playlist found: " + JSON.stringify(playlist));
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'Playlist not found!',
+            })
+        }
+
+        // Check if playlist is published
+        if (playlist.publishDate) {
+            if (!body) {
+                return res.status(400).json({
+                    success: false,
+                    error: 'You must provide a comment body',
+                })
+            }
+
+            //Find user to set comment username appropriately
+            User.findOne({ _id: req.userId }, (err, user) => {
+                const comment = new Comment(body);
+                comment.username = user.username;
+
+                playlist.comments.push(comment._id);
+                playlist
+                    .save()
+                    .then(() => {
+                        comment
+                            .save()
+                            .then(() => {
+                                return res.status(201).json({
+                                    comment: comment
+                                })
+                            })
+                            .catch(error => {
+                                return res.status(400).json({
+                                    errorMessage: 'Comment Not Created!'
+                                })
+                            })
+                    });
+            });
+
+        }
+        else {
+            return res.status(400).json({ success: false, description: "Playlist is not published" });
+        }
+    })
+}
+getComments = async (req, res) => {
+    console.log("getComments: " + req.params.id);
+
+    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+        console.log("playlist found: " + JSON.stringify(playlist));
+        if (err) {
+            return res.status(404).json({
+                err,
+                message: 'Playlist not found!',
+            })
+        }
+
+        // Check if playlist is published
+        if (playlist.publishDate) {
+
+            //Retrieve each comment and return in array
+            async function getComments() {
+                let comments = []
+                for (let key in playlist.comments) {
+                    await Comment.findById({ _id: playlist.comments[key] }, (error, comment) => {
+                        if (!error) {
+                            comments.push(comment);
+                        }
+                    });
+                }
+                return res.status(200).json({ success: true, comments: comments});
+            }
+            return getComments();
+        }
+        else {
+            return res.status(400).json({ success: false, description: "Playlist is not published" });
+        }
+    })
+}
+
 module.exports = {
     createPlaylist,
     deletePlaylist,
     getPlaylistById,
     getPlaylistPairs,
+    getUserPlaylistPairs,
     getPlaylists,
-    updatePlaylist
+    updatePlaylist,
+    publishPlaylist,
+    createComment,
+    getComments
 }

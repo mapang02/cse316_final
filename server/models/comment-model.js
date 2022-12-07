@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 /*
-    Used to keep track of what rating a user gave to a playlist
+    Stores a playlist comment
 */
 const commentSchema = new Schema(
     {
