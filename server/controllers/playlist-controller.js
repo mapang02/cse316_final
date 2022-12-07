@@ -477,42 +477,53 @@ addRating = async (req, res) => {
             }
 
             User.findOne({ _id: req.userId }, (err, user) => {
-                //Return error if rating is invalid
-                if (!Ratings[body.rating]) {
-                    return res.status(400).json({
-                        errorMessage: "invalid rating"
-                    });
-                }
-
-                //Creating Rating object to track rating
-                const rating = new Rating({ ownerEmail: user.email, playlist: playlist._id, rating: body.rating});
-
-                //Add to playlist like/dislike count
-                switch (body.rating) {
-                    case Ratings.LIKE:
-                        playlist.likes += 1;
-                        break;
-                    case Ratings.DISLIKE:
-                        playlist.dislikes += 1;
-                        break;
-                }
-
-                playlist
-                    .save()
-                    .then(() => {
-                        rating
-                            .save()
-                            .then(() => {
-                                return res.status(201).json({
-                                    rating: rating
+                async function asyncAddRating() {
+                    //Return error if user has already given a rating
+                    const existingRating = await Rating.findOne({ ownerEmail: user.email });
+                    if (existingRating) {
+                        return res.status(400).json({
+                            errorMessage: "User has already given a rating to this playlist"
+                        });
+                    }
+    
+                    //Return error if rating is invalid
+                    if (!Ratings[body.rating]) {
+                        return res.status(400).json({
+                            errorMessage: "invalid rating"
+                        });
+                    }
+    
+                    //Creating Rating object to track rating
+                    const rating = new Rating({ ownerEmail: user.email, playlist: playlist._id, rating: body.rating});
+    
+                    //Add to playlist like/dislike count
+                    switch (body.rating) {
+                        case Ratings.LIKE:
+                            playlist.likes += 1;
+                            break;
+                        case Ratings.DISLIKE:
+                            playlist.dislikes += 1;
+                            break;
+                    }
+    
+                    playlist
+                        .save()
+                        .then(() => {
+                            rating
+                                .save()
+                                .then(() => {
+                                    return res.status(201).json({
+                                        rating: rating
+                                    })
                                 })
-                            })
-                            .catch(error => {
-                                return res.status(400).json({
-                                    errorMessage: 'Rating Not Created!'
+                                .catch(error => {
+                                    return res.status(400).json({
+                                        errorMessage: 'Rating Not Created!'
+                                    })
                                 })
-                            })
-                    });
+                        });
+                }
+                asyncAddRating();
             });
 
         }
