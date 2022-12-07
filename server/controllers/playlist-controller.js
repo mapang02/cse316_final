@@ -50,6 +50,7 @@ createPlaylist = (req, res) => {
                     })
                     .catch(error => {
                         return res.status(400).json({
+                            error,
                             errorMessage: 'Playlist Not Created!'
                         })
                     })
@@ -74,8 +75,23 @@ deletePlaylist = async (req, res) => {
                 console.log("req.userId: " + req.userId);
                 if (user._id == req.userId) {
                     console.log("correct user!");
+
+                    //Remove from user list
                     user.playlists.splice(user.playlists.indexOf(req.params.id), 1);
                     user.save().catch(err => console.log(err));
+
+                    //Delete comments
+                    Playlist.findOne({ _id: req.params.id }, (err, playlist) => {
+                        async function deleteComments(list) { 
+                            for (let key in list.comments) {
+                                console.log("Deleting comment " + list.comments[key])
+                                await Comment.findOneAndDelete({ _id: list.comments[key] }).catch(err => console.log(err))
+                            }
+                        }
+                        deleteComments(playlist);
+                    });
+
+                    //Delete playlist
                     Playlist.findOneAndDelete({ _id: req.params.id }, () => {
                         return res.status(200).json({});
                     }).catch(err => console.log(err))
@@ -392,9 +408,8 @@ getComments = async (req, res) => {
 
         // Check if playlist is published
         if (playlist.publishDate) {
-
             //Retrieve each comment and return in array
-            async function getComments() {
+            async function getCommentsFromId() {
                 let comments = []
                 for (let key in playlist.comments) {
                     await Comment.findById({ _id: playlist.comments[key] }, (error, comment) => {
@@ -405,7 +420,7 @@ getComments = async (req, res) => {
                 }
                 return res.status(200).json({ success: true, comments: comments});
             }
-            return getComments();
+            return getCommentsFromId();
         }
         else {
             return res.status(400).json({ success: false, description: "Playlist is not published" });
