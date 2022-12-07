@@ -1,8 +1,12 @@
 import { useContext, useState } from 'react'
 import { GlobalStoreContext } from '../store'
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ThumbUpIcon from '@mui/icons-material/ThumbUpIcon';
+import ThumbDownIcon from '@mui/icons-material/ThumbDownIcon';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import TextField from '@mui/material/TextField';
@@ -73,29 +77,55 @@ function ListCard(props) {
     if (store.isListNameEditActive) {
         cardStatus = true;
     }
+    // If list is published
+    let publishDate = "";
+    let viewCount = "";
+    if (idNamePair.publishDate) {
+        publishDate = "Published:" + (new Date(idNamePair.publishDate).toLocaleDateString());
+        viewCount = "Views: " + idNamePair.__v; //Fix this later
+    }
     let cardElement =
         <ListItem
             id={idNamePair._id}
             key={idNamePair._id}
-            sx={{ marginTop: '15px', display: 'flex', p: 1 }}
-            style={{ width: '100%', fontSize: '24pt' }}
+            sx={{ marginTop: '15px', display: 'flex', p: 1, backgroundColor: 'lightgrey' }}
+            style={{ width: '100%'}}
             button
             onClick={(event) => {
                 handleLoadList(event, idNamePair._id)
             }}
         >
-            <Box sx={{ p: 1, flexGrow: 1 }}>{idNamePair.name}</Box>
+            <Grid container sx={{width: '100%', height: '100%'}}>
+                <Grid item xs={8}>
+                    <Box sx={{ p: 1, flexGrow: 1}}><b>{idNamePair.name}</b></Box>
+                </Grid>
+                <Grid item xs={4}>
+                    <Box sx={{ p: 1 }}>
+                        <IconButton onClick={handleToggleEdit} aria-label='edit'>
+                            <EditIcon style={{fontSize:'24pt'}} />
+                        </IconButton>
+                    </Box>
+                </Grid>
+                <Grid item xs={6}>
+                    <Box sx={{p: 1}}>By: {idNamePair.ownerUsername}</Box>
+                </Grid>
+                <Grid item xs={4}>
+                </Grid>
+                <Grid item xs={4}>
+                    <Box sx={{p: 1}}>{publishDate}</Box>
+                </Grid>
+                <Grid item xs={4}>
+                    <Box sx={{p: 1}}>{viewCount}</Box>
+                </Grid>
+                <Grid item xs={4}>
+                    <IconButton onClick={(event) => {
+                            handleDeleteList(event, idNamePair._id)
+                        }} aria-label='delete'>
+                        <DeleteIcon style={{fontSize:'24pt'}} />
+                    </IconButton>
+                </Grid>
+            </Grid>
             <Box sx={{ p: 1 }}>
-                <IconButton onClick={handleToggleEdit} aria-label='edit'>
-                    <EditIcon style={{fontSize:'24pt'}} />
-                </IconButton>
-            </Box>
-            <Box sx={{ p: 1 }}>
-                <IconButton onClick={(event) => {
-                        handleDeleteList(event, idNamePair._id)
-                    }} aria-label='delete'>
-                    <DeleteIcon style={{fontSize:'24pt'}} />
-                </IconButton>
             </Box>
         </ListItem>
 

@@ -198,6 +198,7 @@ getPlaylistPairs = async (req, res) => {
                 else {
                     console.log("Send the Playlist pairs");
                     // PUT ALL THE LISTS INTO ID, NAME PAIRS
+                    /*
                     let pairs = [];
                     for (let key in playlists) {
                         let list = playlists[key];
@@ -208,6 +209,8 @@ getPlaylistPairs = async (req, res) => {
                         pairs.push(pair);
                     }
                     return res.status(200).json({ success: true, idNamePairs: pairs })
+                    */
+                    return res.status(200).json({ success: true, idNamePairs: playlists })
                 }
             }).catch(err => console.log(err))
         }
@@ -243,6 +246,7 @@ getPublicPlaylistPairs = async (req, res) => {
         else {
             console.log("Send the Playlist pairs");
             // PUT ALL THE LISTS INTO ID, NAME PAIRS
+            /*
             let pairs = [];
             for (let key in playlists) {
                 let list = playlists[key];
@@ -253,6 +257,8 @@ getPublicPlaylistPairs = async (req, res) => {
                 pairs.push(pair);
             }
             return res.status(200).json({ success: true, idNamePairs: pairs })
+            */
+            return res.status(200).json({ success: true, idNamePairs: playlists })
         }
     }).catch(err => console.log(err))
 }
