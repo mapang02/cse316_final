@@ -39,13 +39,13 @@ function Comments() {
         comments = c.map(commentGenerator);
     }
     let commentBox = "";
-    if (auth.user) {
+    if (auth.user && store.currentList.publishDate) {
         commentBox = <TextField
             margin="normal"
             required
             fullWidth
             id={"comment-entry"}
-            label="Playlist Name"
+            label="Comment"
             name="name"
             autoComplete="Comment"
             onKeyPress={handleKeyPress}
