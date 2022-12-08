@@ -14,13 +14,17 @@ function Statusbar() {
     const { auth } = useContext(AuthContext);
     const { store } = useContext(GlobalStoreContext);
 
+    const handleAddList = () => {
+        store.createNewList();
+    }
+
     let addSongButton = ""
     if (auth.user && store.currentScreen === "HOME") {
         addSongButton = (
                         <Button
                             disabled={store.canClose() || store.isEditSongModalOpen() || store.isRemoveSongModalOpen()}
                             id='close-button'
-                            onClick={console.log("owo")}
+                            onClick={handleAddList}
                             variant="contained">
                             <AddIcon />
                         </Button>)
