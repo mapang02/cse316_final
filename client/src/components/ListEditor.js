@@ -69,6 +69,11 @@ function ListEditor(props) {
         store.markListForDeletion(store.currentList._id);
     }
 
+    async function handleDuplicateList(event) {
+        event.stopPropagation();
+        store.duplicateList(store.currentList);
+    }
+
     function handleKeyPress(event) {
         if (event.code === "Enter") {
             let id = event.target.id.substring("list-".length);
@@ -124,10 +129,32 @@ function ListEditor(props) {
     if (auth.user) {
         duplicateButton = (
         <Button
-        variant="contained"
+            variant="contained"
+            onClick={handleDuplicateList}
         >
             Duplicate
         </Button>)
+    }
+    // Name field
+    let nameField = (<b>{idNamePair.name}</b>);
+    if (editActive) {
+        nameField =
+            <TextField
+                margin="normal"
+                required
+                fullWidth
+                id={"list-" + idNamePair._id}
+                label="Playlist Name"
+                name="name"
+                autoComplete="Playlist Name"
+                className='list-card'
+                onKeyPress={handleKeyPress}
+                onChange={handleUpdateText}
+                defaultValue={idNamePair.name}
+                inputProps={{style: {fontSize: 48}}}
+                InputLabelProps={{style: {fontSize: 24}}}
+                autoFocus
+            />
     }
 
     // If list is published
@@ -161,7 +188,7 @@ function ListEditor(props) {
         >
             <Grid container sx={{width: '100%', height: '100%'}}>
                 <Grid item xs={8}>
-                    <Box sx={{ p: 1, flexGrow: 1}}><b>{idNamePair.name}</b></Box>
+                    <Box sx={{ p: 1, flexGrow: 1}}>{nameField}</Box>
                 </Grid>
                 <Grid item xs={4}>
                     <Box sx={{ p: 1 }}>
@@ -205,26 +232,6 @@ function ListEditor(props) {
             <Box sx={{ p: 1 }}>
             </Box>
         </ListItem>
-
-    if (editActive) {
-        cardElement =
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                id={"list-" + idNamePair._id}
-                label="Playlist Name"
-                name="name"
-                autoComplete="Playlist Name"
-                className='list-card'
-                onKeyPress={handleKeyPress}
-                onChange={handleUpdateText}
-                defaultValue={idNamePair.name}
-                inputProps={{style: {fontSize: 48}}}
-                InputLabelProps={{style: {fontSize: 24}}}
-                autoFocus
-            />
-    }
     return (
         cardElement
     );

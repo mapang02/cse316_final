@@ -31,7 +31,9 @@ export const GlobalStoreActionType = {
     EDIT_SONG: "EDIT_SONG",
     REMOVE_SONG: "REMOVE_SONG",
     HIDE_MODALS: "HIDE_MODALS",
-    CHANGE_SCREEN: "CHANGE_SCREEN"
+    CHANGE_SCREEN: "CHANGE_SCREEN",
+    SET_DUPLICATE_ERROR: "SET_DUPLICATE_ERROR",
+    UNSET_DUPLICATE_ERROR: "UNSET_DUPLICATE_ERROR"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -41,7 +43,8 @@ const CurrentModal = {
     NONE : "NONE",
     DELETE_LIST : "DELETE_LIST",
     EDIT_SONG : "EDIT_SONG",
-    REMOVE_SONG : "REMOVE_SONG"
+    REMOVE_SONG : "REMOVE_SONG",
+    DUPLICATE: "DUPLICATE"
 }
 
 const CurrentScreen = {
@@ -242,6 +245,34 @@ function GlobalStoreContextProvider(props) {
                     currentScreen: payload
                 });
             }
+            case GlobalStoreActionType.SET_DUPLICATE_ERROR: {
+                return setStore({
+                    currentModal : CurrentModal.DUPLICATE,
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    currentSongIndex: store.currentSongIndex,
+                    currentSong: store.currentSong,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    listIdMarkedForDeletion: null,
+                    listMarkedForDeletion: null,
+                    currentScreen: store.currentScreen
+                });
+            }
+            case GlobalStoreActionType.UNSET_DUPLICATE_ERROR: {
+                return setStore({
+                    currentModal : CurrentModal.NONE,
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    currentSongIndex: store.currentSongIndex,
+                    currentSong: store.currentSong,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    listIdMarkedForDeletion: null,
+                    listMarkedForDeletion: null,
+                    currentScreen: store.currentScreen
+                });
+            }
             default:
                 return store;
         }
@@ -261,7 +292,7 @@ function GlobalStoreContextProvider(props) {
 
                 //Check if playlist with this name already exists
                 let nameExists = await api.getPlaylistByName(newName).catch(err => err);
-                if (!nameExists.playlist) {
+                if (!nameExists.data.playlist) {
                     console.log("Name change is allowed")
                     playlist.name = newName;
                     async function updateList(playlist) {
@@ -288,7 +319,8 @@ function GlobalStoreContextProvider(props) {
                     updateList(playlist);
                 }
                 else {
-                    console.log("Playlist with name already found")
+                    console.log("Playlist with name already found");
+                    store.setDuplicateError();
                 }
             }
         }
@@ -590,6 +622,35 @@ function GlobalStoreContextProvider(props) {
             }
         }
         processPublish(id);
+    }
+
+    // DUPLICATING LIST
+    store.duplicateList = function (list) {
+        // GET THE LIST
+        async function asyncDuplicate(list) {
+            let response = await api.createPlaylist(list.name, list.songs, auth.user.email)
+                                    .catch((err) => {
+                                        return err.response;
+                                    });
+            if (response.status === 200) {
+                store.loadIdNamePairs();
+            }
+        }
+        asyncDuplicate(list);
+    }
+
+    store.setDuplicateError = function () {
+        storeReducer({
+            type: GlobalStoreActionType.SET_DUPLICATE_ERROR,
+            payload: null
+        });
+    }
+
+    store.unsetDuplicateError = function () {
+        storeReducer({
+            type: GlobalStoreActionType.UNSET_DUPLICATE_ERROR,
+            payload: null
+        });
     }
 
     return (

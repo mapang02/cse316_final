@@ -11,6 +11,7 @@ import MUIDeleteModal from './MUIDeleteModal.js';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography'
+import MUIDuplicateErrorModal from './MUIDuplicateErrorModal'
 /*
     This React component lists all the top5 lists in the UI.
     
@@ -46,6 +47,7 @@ const HomeScreen = () => {
             <Statusbar />
             {modalJSX}
             <MUIDeleteModal />
+            <MUIDuplicateErrorModal />
         </Box>)
 }
 

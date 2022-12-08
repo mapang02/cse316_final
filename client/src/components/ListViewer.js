@@ -76,6 +76,11 @@ function ListViewer(props) {
         store.markListForDeletion(store.currentList._id);
     }
 
+    async function handleDuplicateList(event) {
+        event.stopPropagation();
+        store.duplicateList(store.currentList);
+    }
+
     function handleKeyPress(event) {
         if (event.code === "Enter") {
             let id = event.target.id.substring("list-".length);
@@ -130,7 +135,8 @@ function ListViewer(props) {
     if (auth.user) {
         duplicateButton = (
         <Button
-        variant="contained"
+            variant="contained"
+            onClick={handleDuplicateList}
         >
             Duplicate
         </Button>)
