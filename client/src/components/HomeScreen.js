@@ -3,7 +3,9 @@ import { GlobalStoreContext } from '../store'
 import HomeToolbar from './HomeToolbar.js'
 import PlaylistContainer from './PlaylistContainer.js'
 import Player from './Player.js'
-import Statusbar from './Statusbar';
+import Statusbar from './Statusbar.js';
+import MUIEditSongModal from './MUIEditSongModal.js';
+import MUIRemoveSongModal from './MUIRemoveSongModal.js';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -19,6 +21,14 @@ const HomeScreen = () => {
     useEffect(() => {
         store.loadIdNamePairs();
     }, [store.currentScreen]);
+
+    let modalJSX = "";
+    if (store.isEditSongModalOpen()) {
+        modalJSX = <MUIEditSongModal />;
+    }
+    else if (store.isRemoveSongModalOpen()) {
+        modalJSX = <MUIRemoveSongModal />;
+    }
     return (
         <Box>
             <HomeToolbar />
@@ -33,6 +43,7 @@ const HomeScreen = () => {
                 </Grid>
             </Box>
             <Statusbar />
+            {modalJSX}
         </Box>)
 }
 

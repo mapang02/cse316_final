@@ -136,9 +136,6 @@ function ListEditor(props) {
             sx={{ marginTop: '15px', display: 'flex', p: 1, backgroundColor: cardColor }}
             style={{ width: '100%'}}
             button
-            onClick={(event) => {
-                handleLoadList(event, idNamePair._id)
-            }}
         >
             <Grid container sx={{width: '100%', height: '100%'}}>
                 <Grid item xs={8}>

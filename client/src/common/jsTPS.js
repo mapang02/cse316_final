@@ -188,6 +188,7 @@ export default class jsTPS {
      * Removes all the transactions from the TPS, leaving it with none.
      */
     clearAllTransactions() {
+        console.trace();
         // REMOVE ALL THE TRANSACTIONS
         this.transactions = [];
         
