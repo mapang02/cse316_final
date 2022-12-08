@@ -163,6 +163,22 @@ getPlaylistById = async (req, res) => {
         asyncFindUser(list);
     }).catch(err => console.log(err))
 }
+getPlaylistByName = async (req, res) => {
+    console.log("Find Playlist with name: " + JSON.stringify(req.params.id));
+
+    User.findOne({ _id: req.userId }, (err, user) => {
+        async function asyncFindPlaylist() {
+            const playlist = await Playlist.findOne({ name: req.params.name, ownerEmail: user.email });
+            if (!playlist) {
+                //return res.status(404).json({ success: false, error: "Not found" });
+                return res.status(200).json({ success: true, playlist: null });
+            }
+            console.log("Found list: " + JSON.stringify(playlist));
+            return res.status(200).json({ success: true, playlist: playlist });
+        }
+        asyncFindPlaylist();
+    }).catch(err => console.log(err));
+}
 getPublicPlaylistById = async (req, res) => {
     console.log("Find Public Playlist with id: " + JSON.stringify(req.params.id));
 
@@ -610,6 +626,7 @@ module.exports = {
     createPlaylist,
     deletePlaylist,
     getPlaylistById,
+    getPlaylistByName,
     getPublicPlaylistById,
     getPlaylistPairs,
     getPublicPlaylistPairs,

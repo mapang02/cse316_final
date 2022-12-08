@@ -258,29 +258,38 @@ function GlobalStoreContextProvider(props) {
             let response = await api.getPlaylistById(id);
             if (response.status === 200) {
                 let playlist = response.data.playlist;
-                playlist.name = newName;
-                async function updateList(playlist) {
-                    response = await api.updatePlaylistById(playlist._id, playlist)
-                                            .catch((err) => {
-                                                return err.response;
-                                            });
-                    if (response.status === 200) {
-                        async function getListPairs(playlist) {
-                            response = await api.getPlaylistPairs();
-                            if (response.status === 200) {
-                                let pairsArray = response.data.idNamePairs;
-                                storeReducer({
-                                    type: GlobalStoreActionType.CHANGE_LIST_NAME,
-                                    payload: {
-                                        idNamePairs: pairsArray
-                                    }
-                                });
+
+                //Check if playlist with this name already exists
+                let nameExists = await api.getPlaylistByName(newName).catch(err => err);
+                if (nameExists.playlist === null) {
+                    console.log("Name change is allowed")
+                    playlist.name = newName;
+                    async function updateList(playlist) {
+                        response = await api.updatePlaylistById(playlist._id, playlist)
+                                                .catch((err) => {
+                                                    return err.response;
+                                                });
+                        if (response.status === 200) {
+                            async function getListPairs(playlist) {
+                                response = await api.getPlaylistPairs();
+                                if (response.status === 200) {
+                                    let pairsArray = response.data.idNamePairs;
+                                    storeReducer({
+                                        type: GlobalStoreActionType.CHANGE_LIST_NAME,
+                                        payload: {
+                                            idNamePairs: pairsArray
+                                        }
+                                    });
+                                }
                             }
+                            getListPairs(playlist);
                         }
-                        getListPairs(playlist);
                     }
+                    updateList(playlist);
                 }
-                updateList(playlist);
+                else if (nameExists.playlist === 200) {
+                    console.log("Playlist with name already found")
+                }
             }
         }
         asyncChangeListName(id);
