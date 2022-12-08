@@ -723,6 +723,37 @@ function GlobalStoreContextProvider(props) {
         });
     }
 
+    store.createComment = async (id, username, body) => {
+        async function asyncGetComments(id) {
+            const response = await api.createComment(id, username, body);
+            if (response.status === 200) {
+                storeReducer({
+                    type: GlobalStoreActionType.GET_COMMENTS,
+                    payload: response.data.comments
+                });
+            }
+        }
+        asyncGetComments(id);
+    }
+    store.createNewList = async function () {
+        let newListName = "Untitled";
+        const response = await api.createPlaylist(newListName, [], auth.user.email);
+        console.log("createNewList response: " + response);
+        if (response.status === 201) {
+            tps.clearAllTransactions();
+            let newList = response.data.playlist;
+            storeReducer({
+                type: GlobalStoreActionType.CREATE_NEW_LIST,
+                payload: newList
+            }
+            );
+            store.loadIdNamePairs();
+        }
+        else {
+            console.log("API FAILED TO CREATE A NEW LIST");
+        }
+    }
+
     store.getComments = function (id) {
         console.log("Getting comments for " + id)
         async function asyncGetComments(id) {
