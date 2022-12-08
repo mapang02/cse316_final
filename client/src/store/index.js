@@ -580,6 +580,18 @@ function GlobalStoreContextProvider(props) {
         });
     }
 
+    // PUBLISHING LIST
+    store.publishList = function (id) {
+        console.log("Publishing " + id);
+        async function processPublish(id) {
+            let response = await api.publishPlaylistById(id);
+            if (response.status === 200) {
+                store.loadIdNamePairs();
+            }
+        }
+        processPublish(id);
+    }
+
     return (
         <GlobalStoreContext.Provider value={{
             store

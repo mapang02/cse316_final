@@ -25,8 +25,8 @@ function EditToolbar() {
     function handleRedo() {
         store.redo();
     }
-    function handleClose() {
-        store.closeCurrentList();
+    function handlePublish() {
+        store.publishList(store.currentList._id);
     }
     return (
         <div id="edit-toolbar">
@@ -54,7 +54,7 @@ function EditToolbar() {
             <Button 
                 disabled={!store.canClose() || isModalOpen}
                 id='close-button'
-                onClick={handleClose}
+                onClick={handlePublish}
                 variant="contained">
                 Publish
             </Button>

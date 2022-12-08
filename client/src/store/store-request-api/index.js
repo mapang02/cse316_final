@@ -42,6 +42,7 @@ export const updatePlaylistById = (id, playlist) => {
         playlist : playlist
     })
 }
+export const publishPlaylistById = (id) => api.put(`/publish/${id}`)
 
 //Comment functions
 export const createComment = (id, username, body) => {
@@ -70,6 +71,7 @@ const apis = {
     getPlaylistPairs,
     getPublicPlaylistPairs,
     updatePlaylistById,
+    publishPlaylistById,
     createComment,
     getComments,
     addRating,

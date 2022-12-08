@@ -72,6 +72,7 @@ function ListEditor(props) {
     function handleKeyPress(event) {
         if (event.code === "Enter") {
             let id = event.target.id.substring("list-".length);
+            console.log("Changing list name");
             store.changeListName(id, text);
             toggleEdit();
         }
