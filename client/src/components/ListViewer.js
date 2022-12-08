@@ -1,8 +1,10 @@
 import { useEffect, useContext, useState } from 'react'
 import { GlobalStoreContext } from '../store'
+import AuthContext from '../auth'
 import SongCard from './SongCard.js'
 
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import Grid from '@mui/material/Grid';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,6 +25,7 @@ import TextField from '@mui/material/TextField';
     @author McKilla Gorilla
 */
 function ListViewer(props) {
+    const { auth } = useContext(AuthContext);
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
@@ -60,11 +63,17 @@ function ListViewer(props) {
         setEditActive(newActive);
     }
 
+    /*
     async function handleDeleteList(event, id) {
         event.stopPropagation();
         let _id = event.target.id;
         _id = ("" + _id).substring("delete-list-".length);
         store.markListForDeletion(id);
+    }
+    */
+    async function handleDeleteList(event) {
+        event.stopPropagation();
+        store.markListForDeletion(store.currentList._id);
     }
 
     function handleKeyPress(event) {
@@ -106,6 +115,26 @@ function ListViewer(props) {
          </List>         
          </Box>
     )
+    // Duplicate and delete buttons
+    let deleteButton = "";
+    if (auth.user && auth.user.email === idNamePair.ownerEmail) {
+        deleteButton = (
+        <Button
+            variant="contained"
+            onClick={handleDeleteList}
+        >
+            Delete
+        </Button>)
+    }
+    let duplicateButton = "";
+    if (auth.user) {
+        duplicateButton = (
+        <Button
+        variant="contained"
+        >
+            Duplicate
+        </Button>)
+    }
 
     // If list is published
     let cardColor = "orange";
@@ -144,20 +173,21 @@ function ListViewer(props) {
                     <Box sx={{ p: 1, flexGrow: 1}}><b>{idNamePair.name}</b></Box>
                 </Grid>
                 <Grid item xs={4}>
-                    <Box sx={{ p: 1 }}>
-                        <IconButton onClick={handleToggleEdit} aria-label='edit'>
-                            <EditIcon style={{fontSize:'24pt'}} />
-                        </IconButton>
-                    </Box>
+                    {ratings}
                 </Grid>
                 <Grid item xs={6}>
                     <Box sx={{p: 1}}>By: {idNamePair.ownerUsername}</Box>
                 </Grid>
                 <Grid item xs={6}>
-                    {ratings}
                 </Grid>
                 <Grid item xs={12}>
                     {songsList}
+                </Grid>
+                <Grid item xs={6}>
+                </Grid>
+                <Grid item xs={6}>
+                    {deleteButton}
+                    {duplicateButton}
                 </Grid>
                 <Grid item xs={4}>
                     <Box sx={{p: 1}}>{publishDate}</Box>

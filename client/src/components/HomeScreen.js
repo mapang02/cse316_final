@@ -6,6 +6,7 @@ import Player from './Player.js'
 import Statusbar from './Statusbar.js';
 import MUIEditSongModal from './MUIEditSongModal.js';
 import MUIRemoveSongModal from './MUIRemoveSongModal.js';
+import MUIDeleteModal from './MUIDeleteModal.js';
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -44,6 +45,7 @@ const HomeScreen = () => {
             </Box>
             <Statusbar />
             {modalJSX}
+            <MUIDeleteModal />
         </Box>)
 }
 
