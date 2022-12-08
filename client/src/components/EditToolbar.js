@@ -56,7 +56,7 @@ function EditToolbar() {
                 id='close-button'
                 onClick={handleClose}
                 variant="contained">
-                    <CloseIcon />
+                Publish
             </Button>
         </div>
     )
