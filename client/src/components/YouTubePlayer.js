@@ -68,14 +68,14 @@ function YouTubePlayer() {
             console.log("0 Video ended");
             incSong();
             if (store.currentList) {
-                store.setPlayerInfo(currentSong, songs[currentSong].title, songs[currentSong].artist);
+                //store.setPlayerInfo(currentSong, songs[currentSong].title, songs[currentSong].artist);
             }
             loadAndPlayCurrentSong(player);
         } else if (playerStatus === 1) {
             // THE VIDEO IS PLAYED
             console.log("1 Video played");
             if (store.currentList) {
-                store.setPlayerInfo(currentSong, songs[currentSong].title, songs[currentSong].artist);
+                //store.setPlayerInfo(currentSong, songs[currentSong].title, songs[currentSong].artist);
             }
         } else if (playerStatus === 2) {
             // THE VIDEO IS PAUSED
@@ -90,6 +90,7 @@ function YouTubePlayer() {
     }
 
     function VideoDescription() {
+        /*
         const { store } = useContext(GlobalStoreContext);
 
         let playerText = ""
@@ -99,6 +100,18 @@ function YouTubePlayer() {
                 <Box>Song #: {store.playerInfo.songNum}</Box>
                 <Box>Title: {store.playerInfo.title}</Box>
                 <Box>Artist: {store.playerInfo.artist}</Box>
+            </Box>
+        }
+        return playerText;
+        */
+
+        let playerText = ""
+        if (songs.length > 0) {
+            playerText = <Box>
+                <Box>Playlist: {store.currentList.name}</Box>
+                <Box>Song #: {currentSong}</Box>
+                <Box>Title: {songs[currentSong].title}</Box>
+                <Box>Artist: {songs[currentSong].artist}</Box>
             </Box>
         }
         return playerText;
