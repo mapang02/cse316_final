@@ -17,13 +17,16 @@ function Player() {
   
     const handleChange = (event, newValue) => {
       setValue(newValue);
+      if (newValue === 1 && store.currentList) {
+        store.getComments(store.currentList._id);
+      }
     };
 
     let contents = "";
-    if (value == 0) {
+    if (value === 0) {
         contents = <YouTubePlayer />
     }
-    if (value == 1) {
+    if (value === 1) {
         contents = <Comments />
     }
 

@@ -11,9 +11,18 @@ function Comments() {
     const { auth } = useContext(AuthContext);
     const { store } = useContext(GlobalStoreContext);
 
+    const commentGenerator = (c) => {
+        return <Box>{JSON.stringify(c)}</Box>
+    }
+
+    let comments = "";
+    if (store.comments.length > 0) {
+        comments = store.commments.map(commentGenerator);
+    }
+
     return (
         <Box>
-            2
+            {comments}
         </Box>
     )
 }
