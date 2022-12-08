@@ -1,6 +1,7 @@
 import { useEffect, useContext, useState } from 'react'
 import { GlobalStoreContext } from '../store'
-import SongCard from './SongCard.js'
+import EditorSongCard from './EditorSongCard.js'
+import EditToolbar from './EditToolbar.js'
 
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
@@ -22,7 +23,7 @@ import TextField from '@mui/material/TextField';
     
     @author McKilla Gorilla
 */
-function ListViewer(props) {
+function ListEditor(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
@@ -95,7 +96,7 @@ function ListViewer(props) {
         >
             {
                 store.currentList.songs.map((song, index) => (
-                    <SongCard
+                    <EditorSongCard
                         id={'playlist-song-' + (index)}
                         key={'playlist-song-' + (index)}
                         index={index}
@@ -108,7 +109,7 @@ function ListViewer(props) {
     )
 
     // If list is published
-    let cardColor = "orange";
+    let cardColor = "purple";
     let publishDate = "";
     let viewCount = "";
     let ratings = "";
@@ -159,6 +160,9 @@ function ListViewer(props) {
                 <Grid item xs={12}>
                     {songsList}
                 </Grid>
+                <Grid item xs={12}>
+                    <EditToolbar />
+                </Grid>
                 <Grid item xs={4}>
                     <Box sx={{p: 1}}>{publishDate}</Box>
                 </Grid>
@@ -176,9 +180,29 @@ function ListViewer(props) {
             <Box sx={{ p: 1 }}>
             </Box>
         </ListItem>
+
+    if (editActive) {
+        cardElement =
+            <TextField
+                margin="normal"
+                required
+                fullWidth
+                id={"list-" + idNamePair._id}
+                label="Playlist Name"
+                name="name"
+                autoComplete="Playlist Name"
+                className='list-card'
+                onKeyPress={handleKeyPress}
+                onChange={handleUpdateText}
+                defaultValue={idNamePair.name}
+                inputProps={{style: {fontSize: 48}}}
+                InputLabelProps={{style: {fontSize: 24}}}
+                autoFocus
+            />
+    }
     return (
         cardElement
     );
 }
 
-export default ListViewer;
+export default ListEditor;

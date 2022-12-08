@@ -1,6 +1,8 @@
 import { useContext } from 'react'
 import { GlobalStoreContext } from '../store'
+import AuthContext from '../auth'
 import ListCard from './ListCard.js'
+import ListEditor from './ListEditor.js'
 import ListViewer from './ListViewer.js'
 
 import AddIcon from '@mui/icons-material/Add';
@@ -9,6 +11,7 @@ import Fab from '@mui/material/Fab'
 import List from '@mui/material/List';
 
 function PlaylistContainer() {
+    const { auth } = useContext(AuthContext);
     const { store } = useContext(GlobalStoreContext);
 
     const cardCreator = (pair) => {
@@ -21,6 +24,16 @@ function PlaylistContainer() {
                 />);
         }
         else {
+            //Editor
+            if (!auth.isGuest && auth.user && auth.user.email === pair.ownerEmail && !pair.publishDate) {
+                return (
+                <ListEditor
+                    key={pair._id}
+                    idNamePair={pair}
+                    selected={false}
+                />);
+            }
+            //Viewer
             return (
                 <ListViewer
                     key={pair._id}

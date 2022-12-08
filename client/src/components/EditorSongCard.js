@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react'
 import { GlobalStoreContext } from '../store'
 
-function SongCard(props) {
+function EditorSongCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const [ draggedTo, setDraggedTo ] = useState(0);
     const { song, index } = props;
@@ -34,7 +34,8 @@ function SongCard(props) {
         store.addMoveSongTransaction(sourceIndex, targetIndex);
     }
     function handleRemoveSong(event) {
-        store.showRemoveSongModal(index, song);
+        //store.showRemoveSongModal(index, song);
+        store.removeSong(index);
     }
     function handleClick(event) {
         // DOUBLE CLICK IS FOR SONG EDITING
@@ -49,6 +50,13 @@ function SongCard(props) {
             key={index}
             id={'song-' + index + '-card'}
             className={cardClass}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            draggable="true"
+            onClick={handleClick}
         >
             {index + 1}.
             <a
@@ -57,8 +65,15 @@ function SongCard(props) {
                 href={"https://www.youtube.com/watch?v=" + song.youTubeId}>
                 {song.title} by {song.artist}
             </a>
+            <input
+                type="button"
+                id={"remove-song-" + index}
+                className="list-card-button"
+                value={"\u2715"}
+                onClick={handleRemoveSong}
+            />
         </div>
     );
 }
 
-export default SongCard;
+export default EditorSongCard;
