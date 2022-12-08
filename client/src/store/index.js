@@ -261,7 +261,7 @@ function GlobalStoreContextProvider(props) {
 
                 //Check if playlist with this name already exists
                 let nameExists = await api.getPlaylistByName(newName).catch(err => err);
-                if (nameExists.playlist === null) {
+                if (!nameExists.playlist) {
                     console.log("Name change is allowed")
                     playlist.name = newName;
                     async function updateList(playlist) {
@@ -287,7 +287,7 @@ function GlobalStoreContextProvider(props) {
                     }
                     updateList(playlist);
                 }
-                else if (nameExists.playlist === 200) {
+                else {
                     console.log("Playlist with name already found")
                 }
             }
